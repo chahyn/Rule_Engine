@@ -16,6 +16,13 @@ def read_jsonl(path: Path) -> list[dict]:
         return [json.loads(line) for line in f if line.strip()]
 
 
+@pytest.fixture(autouse=True)
+def _isolated_audit(tmp_path, monkeypatch):
+    """Tests never touch outputs/audit.jsonl: each test gets its own audit file."""
+    monkeypatch.setenv("AUDIT_LOG", str(tmp_path / "audit.jsonl"))
+    monkeypatch.setenv("AUDIT_ENABLED", "1")
+
+
 @pytest.fixture(scope="session")
 def store() -> PolicyStore:
     return PolicyStore.from_dir(RULES_DIR)

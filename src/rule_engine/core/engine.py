@@ -26,7 +26,7 @@ class IngestionError(ValueError):
         self.details = details or []
 
 
-def _guard(raw: object) -> dict:
+def check_envelope(raw: object) -> dict:
     if not isinstance(raw, dict):
         raise IngestionError("claim envelope must be a JSON object")
     try:
@@ -40,7 +40,7 @@ def _guard(raw: object) -> dict:
 def evaluate_claim(raw: dict, store: PolicyStore,
                    policy_override: Optional[Policy] = None) -> list[RuleResult]:
     """Exactly 15 results, one per rule, in R001..R015 order."""
-    _guard(raw)
+    check_envelope(raw)
     policy = policy_override or store.get(raw["policy_id"])
     ctx = ClaimContext(raw=raw, policy=policy, store=store)
     results = [fn(ctx) for fn in RULES.values()]
@@ -49,12 +49,13 @@ def evaluate_claim(raw: dict, store: PolicyStore,
 
 
 def validate_claim(raw: dict, store: PolicyStore,
-                   policy_override: Optional[Policy] = None) -> ValidationResponse:
+                   policy_override: Optional[Policy] = None,
+                   run_id: Optional[str] = None) -> ValidationResponse:
     started, t0 = datetime.now(timezone.utc), time.perf_counter()
     results = evaluate_claim(raw, store, policy_override)
     policy = policy_override or store.get(raw["policy_id"])
     run = RunMetadata(
-        run_id=str(uuid.uuid4()), input_hash=input_hash(raw), engine_version=ENGINE_VERSION,
+        run_id=run_id or str(uuid.uuid4()), input_hash=input_hash(raw), engine_version=ENGINE_VERSION,
         rule_versions={rid: m.version for rid, m in store.rules.items()},
         policy_id=raw["policy_id"], policy_version=policy.version if policy else None,
         started_at=started, duration_ms=round((time.perf_counter() - t0) * 1000, 3))

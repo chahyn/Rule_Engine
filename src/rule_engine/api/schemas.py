@@ -6,9 +6,15 @@ from ..domain.policy import Policy
 from ..domain.result import ValidationResponse
 
 
+class PreviousRun(BaseModel):
+    run_id: str
+    input_hash: str
+
+
 class ValidateRequest(BaseModel):
     claim: dict[str, Any]
     policy_override: Optional[Policy] = None
+    previous_run: Optional[PreviousRun] = None  # set when re-checking a corrected claim
 
 
 class BatchRequest(BaseModel):
