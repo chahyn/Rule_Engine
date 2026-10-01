@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "claimguard-rule-engine"
 version = "0.1.0"
 requires-python = ">=3.10"
-dependencies = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "pydantic>=2.6"]
+dependencies = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "pydantic>=2.6", "reportlab>=4.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

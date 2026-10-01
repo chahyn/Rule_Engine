@@ -5,3 +5,4 @@ Requires-Python: >=3.10
 Requires-Dist: fastapi>=0.110
 Requires-Dist: uvicorn[standard]>=0.29
 Requires-Dist: pydantic>=2.6
+Requires-Dist: reportlab>=4.0
